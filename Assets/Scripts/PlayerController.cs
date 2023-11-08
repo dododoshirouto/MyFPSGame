@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour
 
         float neckX = neckBonePitch.localRotation.eulerAngles.x;
         float neckY = neckBonePitch.localRotation.eulerAngles.y;
-        Debug.Log("neckX: "+ neckBonePitch.localRotation.eulerAngles);
+        // Debug.Log("neckX: "+ neckBonePitch.localRotation.eulerAngles);
         if (neckY > 90) {
             if (neckX > 180) {
                 neckBonePitch.localRotation = Quaternion.Euler(270, 0, 0);
