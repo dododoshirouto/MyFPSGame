@@ -52,5 +52,6 @@
         "Temp/": true
     },
     "omnisharp.useGlobalMono": "always",
-    "omnisharp.monoPath": "/Library/Frameworks/Mono.framework/Versions/Current"
+    "omnisharp.monoPath": "/Library/Frameworks/Mono.framework/Versions/Current",
+    "dotnet.preferCSharpExtension": true
 }

@@ -59,10 +59,15 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(0, actionRotate.x * Time.deltaTime * rotateSpeed, 0);
         neckBonePitch.Rotate(actionRotate.y * (inverseYaw? -1: 1) * Time.deltaTime * rotateSpeed, 0, 0);
 
-        if (neckBonePitch.localRotation.eulerAngles.x > 90) {
-            neckBonePitch.localRotation = Quaternion.Euler(90, 0, 0);
-        } else if (neckBonePitch.localRotation.eulerAngles.x < -90) {
-            neckBonePitch.localRotation = Quaternion.Euler(-90, 0, 0);
+        float neckX = neckBonePitch.localRotation.eulerAngles.x;
+        float neckY = neckBonePitch.localRotation.eulerAngles.y;
+        Debug.Log("neckX: "+ neckBonePitch.localRotation.eulerAngles);
+        if (neckY > 90) {
+            if (neckX > 180) {
+                neckBonePitch.localRotation = Quaternion.Euler(270, 0, 0);
+            } else {
+                neckBonePitch.localRotation = Quaternion.Euler(90, 0, 0);
+            }
         }
     }
 
@@ -89,4 +94,6 @@ public class PlayerController : MonoBehaviour
         };
     }
     # endif
+
+
 }
