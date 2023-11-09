@@ -7,8 +7,16 @@ public class Gun : MonoBehaviour
     [Header("Gun Settings")]
     public string gunName;
     public Magazine mag_pref;
+    public Collider magCheckTrigger;
     public Transform firePoint;
     public Transform magPoint;
+    public Transform slider;
+    public Transform slidePoint;
+    public float slideMoveRate = 0.2f;
+    Vector3 firstSlidePos;
+    Quaternion firstSlideRot;
+    bool doSlide = false;
+    bool doSlideStopper = false;
 
     public ParticleSystem[] fireParticles;
 
@@ -18,12 +26,19 @@ public class Gun : MonoBehaviour
 
     void Start()
     {
+        if (slider && slidePoint)
+        {
+            firstSlidePos = slider.localPosition;
+            firstSlideRot = slider.localRotation;
+        }
 
+        var mgc = magCheckTrigger.gameObject.AddComponent<MagCheck>();
+        mgc.gun = this;
     }
 
     void Update()
     {
-
+        MoveSlide();
     }
 
 
@@ -31,6 +46,10 @@ public class Gun : MonoBehaviour
     public int GetBulletNum()
     {
         if (magazine == null)
+        {
+            return 0;
+        }
+        if (magazine.gameObject.TryGetComponent<Rigidbody>(out var tmp_rb))
         {
             return 0;
         }
@@ -42,10 +61,9 @@ public class Gun : MonoBehaviour
 
     public void Fire()
     {
-        if (GetBulletNum() <= 0)
-        {
-            return;
-        }
+        if (GetBulletNum() <= 0) return;
+        if (doSlide) return;
+
 
         for (int i = 0; i < fireParticles.Length; i++)
         {
@@ -53,6 +71,44 @@ public class Gun : MonoBehaviour
         }
 
         magazine.bulletNum--;
+        doSlide = true;
+    }
+
+    public void MoveSlide()
+    {
+        if (!slider || !slidePoint)
+        {
+            return;
+        }
+
+        if (doSlide)
+        {
+            slider.localPosition = Vector3.Lerp(slider.localPosition, slidePoint.localPosition, slideMoveRate);
+            slider.localRotation = Quaternion.Lerp(slider.localRotation, slidePoint.localRotation, slideMoveRate);
+            if (Vector3.Distance(slider.localPosition, slidePoint.localPosition) < 0.0001f)
+            {
+                doSlide = false;
+            }
+        }
+        else if (Vector3.Distance(slider.localPosition, firstSlidePos) > 0.0001f)
+        {
+            if (doSlideStopper) return;
+            if (GetBulletNum() > 0)
+            {
+                slider.localPosition = Vector3.Lerp(slider.localPosition, firstSlidePos, slideMoveRate);
+                slider.localRotation = Quaternion.Lerp(slider.localRotation, firstSlideRot, slideMoveRate);
+            }
+            else
+            {
+                doSlideStopper = true;
+            }
+        }
+    }
+
+    public void DoSliding()
+    {
+        doSlide = true;
+        if (GetBulletNum() > 0) doSlideStopper = false;
     }
 
     [Header("Action Preview Buttons")]
@@ -66,7 +122,7 @@ public class Gun : MonoBehaviour
         }
 
         magazine.Eject();
-        magazine = null;
+        // magazine = null;
     }
 
     [SerializeField, Button("SetMag")]
@@ -89,5 +145,20 @@ public class Gun : MonoBehaviour
     public void Cocking()
     {
 
+    }
+
+
+
+    public class MagCheck : MonoBehaviour
+    {
+        public Gun gun;
+
+        void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject == gun.magazine.gameObject)
+            {
+                gun.magazine = null;
+            }
+        }
     }
 }

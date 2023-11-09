@@ -32,6 +32,11 @@ public class PlayerGunController : MonoBehaviour
         FireControl();
         SetGunPointState();
         SetAndEjectMag();
+
+        if (actions["Slide"].IsPressed())
+        {
+            equippedGun.DoSliding();
+        }
     }
 
     void FixedUpdate()
