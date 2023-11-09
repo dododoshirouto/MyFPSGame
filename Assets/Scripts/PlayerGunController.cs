@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerGunController : MonoBehaviour
 {
     InputActionAsset actions;
+    PlayerController playerController;
     public Gun equippedGun;
     public GunPointState gunPointState = GunPointState.Hand;
 
@@ -18,6 +19,7 @@ public class PlayerGunController : MonoBehaviour
     void Start()
     {
         actions = GetComponent<PlayerInput>().actions;
+        playerController = GetComponent<PlayerController>();
     }
 
     void Update()
@@ -27,12 +29,34 @@ public class PlayerGunController : MonoBehaviour
             return;
         }
 
-        SetAndEjectMag();
-
+        FireControl();
         SetGunPointState();
+        SetAndEjectMag();
+    }
+
+    void FixedUpdate()
+    {
+        if (!equippedGun)
+        {
+            return;
+        }
+
+        var handPoint = Array.Find(gunPointSets, x => x.name == "Hand").point;
+        handPoint.localRotation = playerController.neckBonePitch.localRotation;
+
         SetGunToGunPoint();
     }
 
+
+
+    void FireControl()
+    {
+
+        if (actions["Fire"].WasPressedThisFrame())
+        {
+            equippedGun.Fire();
+        }
+    }
 
     void SetAndEjectMag()
     {
@@ -49,8 +73,15 @@ public class PlayerGunController : MonoBehaviour
 
     void SetGunToGunPoint()
     {
-        var nowGunPos = Array.Find(gunPointSets, x => x.name == gunPointState.ToString()).point.position;
-        var nowGunRot = Array.Find(gunPointSets, x => x.name == gunPointState.ToString()).point.rotation;
+        var targetPoint = Array.Find(gunPointSets, x => x.name == gunPointState.ToString()).point;
+
+        if (equippedGun.transform.parent != targetPoint)
+        {
+            equippedGun.transform.parent = targetPoint;
+        }
+
+        var nowGunPos = targetPoint.position;
+        var nowGunRot = targetPoint.rotation;
         equippedGun.transform.position = Vector3.Lerp(equippedGun.transform.position, nowGunPos, gunPosAnimRate);
         equippedGun.transform.rotation = Quaternion.Lerp(equippedGun.transform.rotation, nowGunRot, gunPosAnimRate);
     }

@@ -28,19 +28,16 @@ public class Magazine : MonoBehaviour
 
     public void Eject()
     {
+        rb = gameObject.AddComponent<Rigidbody>();
         this.transform.SetParent(null);
-        rb.isKinematic = false;
     }
 
     public void Set()
     {
-        rb = GetComponent<Rigidbody>();
 
         this.transform.SetParent(null);
-        rb.isKinematic = false;
         transform.parent = parentGun.magPoint;
         transform.position = parentGun.magPoint.position;
         transform.rotation = parentGun.magPoint.rotation;
-        rb.isKinematic = true;
     }
 }

@@ -10,6 +10,8 @@ public class Gun : MonoBehaviour
     public Transform firePoint;
     public Transform magPoint;
 
+    public ParticleSystem[] fireParticles;
+
     [Header("System Args")]
     public Magazine magazine;
 
@@ -26,8 +28,10 @@ public class Gun : MonoBehaviour
 
 
 
-    public int getBulletNum() {
-        if (magazine == null) {
+    public int GetBulletNum()
+    {
+        if (magazine == null)
+        {
             return 0;
         }
         return magazine.bulletNum;
@@ -38,7 +42,17 @@ public class Gun : MonoBehaviour
 
     public void Fire()
     {
+        if (GetBulletNum() <= 0)
+        {
+            return;
+        }
 
+        for (int i = 0; i < fireParticles.Length; i++)
+        {
+            fireParticles[i].Play();
+        }
+
+        magazine.bulletNum--;
     }
 
     [Header("Action Preview Buttons")]
@@ -61,7 +75,8 @@ public class Gun : MonoBehaviour
     {
         if (magazine != null)
         {
-            EjectMag();
+            // EjectMag();
+            return;
         }
 
         magazine = Instantiate(mag_pref.gameObject, magPoint).GetComponent<Magazine>();
