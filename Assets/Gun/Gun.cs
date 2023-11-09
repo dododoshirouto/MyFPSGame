@@ -62,7 +62,7 @@ public class Gun : MonoBehaviour
     public void Fire()
     {
         if (GetBulletNum() <= 0) return;
-        if (doSlide) return;
+        if (doSlide || doSlideStopper) return;
 
 
         for (int i = 0; i < fireParticles.Length; i++)
