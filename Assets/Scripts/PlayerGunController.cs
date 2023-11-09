@@ -22,24 +22,43 @@ public class PlayerGunController : MonoBehaviour
 
     void Update()
     {
-        if (!equippedGun) {
+        if (!equippedGun)
+        {
             return;
         }
+
+        SetAndEjectMag();
 
         SetGunPointState();
         SetGunToGunPoint();
     }
 
 
-    void SetGunToGunPoint() {
+    void SetAndEjectMag()
+    {
+        if (actions["SetMag"].WasPressedThisFrame())
+        {
+            equippedGun.SetMag();
+        }
+        if (actions["EjectMag"].WasPressedThisFrame())
+        {
+            equippedGun.EjectMag();
+        }
+    }
+
+
+    void SetGunToGunPoint()
+    {
         var nowGunPos = Array.Find(gunPointSets, x => x.name == gunPointState.ToString()).point.position;
         var nowGunRot = Array.Find(gunPointSets, x => x.name == gunPointState.ToString()).point.rotation;
         equippedGun.transform.position = Vector3.Lerp(equippedGun.transform.position, nowGunPos, gunPosAnimRate);
         equippedGun.transform.rotation = Quaternion.Lerp(equippedGun.transform.rotation, nowGunRot, gunPosAnimRate);
     }
 
-    void SetGunPointState() {
-        if (actions["Aim"].IsPressed()) {
+    void SetGunPointState()
+    {
+        if (actions["Aim"].IsPressed())
+        {
             gunPointState = GunPointState.Aim;
             return;
         }
@@ -48,7 +67,8 @@ public class PlayerGunController : MonoBehaviour
     }
 
 
-    public enum GunPointState {
+    public enum GunPointState
+    {
         None,
         Aim,
         Hand,
@@ -58,7 +78,8 @@ public class PlayerGunController : MonoBehaviour
 
 
     [System.Serializable]
-    public class GunPointSet {
+    public class GunPointSet
+    {
         public string name;
         public Transform point;
     }

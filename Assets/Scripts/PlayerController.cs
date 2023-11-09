@@ -37,14 +37,18 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (onGround.onGround) {
+        rb.angularVelocity = Vector3.zero;
+
+        if (onGround.onGround)
+        {
             Move();
         }
 
         Rotate();
     }
 
-    void Move() {
+    void Move()
+    {
         var lastY = rb.velocity.y;
 
         var actionMove = actions["Move"].ReadValue<Vector2>();
@@ -53,25 +57,30 @@ public class PlayerController : MonoBehaviour
         rb.velocity = neckBoneYaw.TransformVector(move).normalized * moveSpeed + Vector3.up * lastY;
     }
 
-    void Rotate() {
+    void Rotate()
+    {
         var actionRotate = actions["Rotate"].ReadValue<Vector2>();
 
         transform.Rotate(0, actionRotate.x * Time.deltaTime * rotateSpeed, 0);
-        neckBonePitch.Rotate(actionRotate.y * (inverseYaw? -1: 1) * Time.deltaTime * rotateSpeed, 0, 0);
+        neckBonePitch.Rotate(actionRotate.y * (inverseYaw ? -1 : 1) * Time.deltaTime * rotateSpeed, 0, 0);
 
         float neckX = neckBonePitch.localRotation.eulerAngles.x;
         float neckY = neckBonePitch.localRotation.eulerAngles.y;
         // Debug.Log("neckX: "+ neckBonePitch.localRotation.eulerAngles);
-        if (neckY > 90) {
-            if (neckX > 180) {
+        if (neckY > 90)
+        {
+            if (neckX > 180)
+            {
                 neckBonePitch.localRotation = Quaternion.Euler(270, 0, 0);
-            } else {
+            }
+            else
+            {
                 neckBonePitch.localRotation = Quaternion.Euler(90, 0, 0);
             }
         }
     }
 
-    # if UNITY_EDITOR
+#if UNITY_EDITOR
     // エディターでのマウス固定
     static void AutoFocusGameViewOnPlay()
     {
@@ -93,7 +102,7 @@ public class PlayerController : MonoBehaviour
             }
         };
     }
-    # endif
+#endif
 
 
 }
