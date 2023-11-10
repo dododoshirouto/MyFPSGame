@@ -24,6 +24,12 @@ public class Gun : MonoBehaviour
     public Magazine magazine;
 
 
+    HintText hintMagEject;
+    HintText hintMagSet;
+    HintText hintSlide;
+    HintText hintFire;
+
+
     void Start()
     {
         if (slider && slidePoint)
@@ -34,11 +40,28 @@ public class Gun : MonoBehaviour
 
         var mgc = magCheckTrigger.gameObject.AddComponent<MagCheck>();
         mgc.gun = this;
+
+        hintMagEject = HintText.CreateText(magPoint, "B", "Eject Mag");
+        hintMagEject.SetVisible(false);
+        hintMagSet = HintText.CreateText(magPoint, "G", "Set Mag");
+        hintMagSet.SetVisible(false);
+        hintSlide = HintText.CreateText(slidePoint, "R", "Slide");
+        hintSlide.SetVisible(false);
+        hintFire = HintText.CreateText(firePoint, "Mouse L", "Fire");
+        hintFire.SetVisible(false);
     }
 
     void Update()
     {
         MoveSlide();
+    }
+
+    void OnDestroy()
+    {
+        hintMagEject.Remove();
+        hintMagSet.Remove();
+        hintSlide.Remove();
+        hintFire.Remove();
     }
 
 
@@ -47,6 +70,7 @@ public class Gun : MonoBehaviour
     {
         if (magazine == null)
         {
+            hintMagSet.SetVisible(true);
             return 0;
         }
         if (magazine.gameObject.TryGetComponent<Rigidbody>(out var tmp_rb))
@@ -61,8 +85,16 @@ public class Gun : MonoBehaviour
 
     public void Fire()
     {
-        if (GetBulletNum() <= 0) return;
-        if (doSlide || doSlideStopper) return;
+        if (GetBulletNum() <= 0)
+        {
+            if (magazine) hintMagEject.SetVisible(true);
+            return;
+        }
+        if (doSlide || doSlideStopper)
+        {
+            hintSlide.SetVisible(true);
+            return;
+        }
 
 
         for (int i = 0; i < fireParticles.Length; i++)
@@ -88,6 +120,7 @@ public class Gun : MonoBehaviour
             if (Vector3.Distance(slider.localPosition, slidePoint.localPosition) < 0.0001f)
             {
                 doSlide = false;
+                hintSlide.SetVisible(false);
             }
         }
         else if (Vector3.Distance(slider.localPosition, firstSlidePos) > 0.0001f)
@@ -109,6 +142,13 @@ public class Gun : MonoBehaviour
     {
         doSlide = true;
         if (GetBulletNum() > 0) doSlideStopper = false;
+        else
+        {
+            if (magazine)
+                hintMagEject.SetVisible(true);
+            else
+                hintMagSet.SetVisible(true);
+        }
     }
 
     [Header("Action Preview Buttons")]
@@ -123,6 +163,7 @@ public class Gun : MonoBehaviour
 
         magazine.Eject();
         // magazine = null;
+        hintMagEject.SetVisible(false);
     }
 
     [SerializeField, Button("SetMag")]
@@ -138,6 +179,7 @@ public class Gun : MonoBehaviour
         magazine = Instantiate(mag_pref.gameObject, magPoint).GetComponent<Magazine>();
         magazine.parentGun = this;
         magazine.Set();
+        hintMagSet.SetVisible(false);
     }
 
     [SerializeField, Button("Cocking")]
